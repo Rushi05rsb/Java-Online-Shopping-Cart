@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Shopping Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-icon">🛒</span>
+                <h1>QuickShop Cart</h1>
+            </div>
+            <div class="header-right">
+                <span class="customer-pill">👤 Rahul Sharma</span>
+                <a href="#cart-section" class="cart-badge">
+                    <span>Cart</span>
+                    <span id="cart-count" class="badge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Floating / Top Notification Banner -->
+        <div id="notification-banner" class="notification hidden">
+            <span id="notification-icon"></span>
+            <span id="notification-text"></span>
+            <button id="notification-close" class="close-btn" onclick="hideNotification()">&times;</button>
+        </div>
+
+        <div class="main-layout">
+            <!-- Left Column: Product Catalog -->
+            <section class="catalog-section">
+                <div class="section-header">
+                    <h2>Available Products</h2>
+                    <span class="subtext">Browse our items and add them to your cart</span>
+                </div>
+                <div id="product-grid" class="product-grid">
+                    <!-- Loaded dynamically via JavaScript -->
+                    <div class="loading-placeholder">Loading products...</div>
+                </div>
+            </section>
+
+            <!-- Right Column: Cart, Discount, Checkout & Order Summary -->
+            <aside class="sidebar-section" id="cart-section">
+                <!-- Shopping Cart Panel -->
+                <div class="card cart-card">
+                    <div class="card-header">
+                        <h3>Your Shopping Cart</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="cart-items-container">
+                            <!-- Loaded dynamically via JavaScript -->
+                            <p class="empty-text">Your cart is currently empty.</p>
+                        </div>
+
+                        <!-- Price Breakdown -->
+                        <div id="cart-summary" class="cart-summary hidden">
+                            <div class="summary-row">
+                                <span>Cart Subtotal</span>
+                                <span id="cart-subtotal">₹0.00</span>
+                            </div>
+                            <div class="summary-row discount-row" id="summary-discount-row">
+                                <span id="summary-discount-label">Discount Applied</span>
+                                <span id="summary-discount-amount">-₹0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Taxable Amount</span>
+                                <span id="cart-taxable">₹0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>GST (18%)</span>
+                                <span id="cart-gst">₹0.00</span>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-row total-row">
+                                <span>Total Payable</span>
+                                <span id="cart-final">₹0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discount Box -->
+                <div class="card discount-card">
+                    <div class="card-header">
+                        <h3>Apply Promo Discount</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="discount-form" onsubmit="handleApplyDiscount(event)">
+                            <div class="form-group">
+                                <label for="discount-type">Discount Type</label>
+                                <select id="discount-type" onchange="toggleDiscountInput()">
+                                    <option value="none">No Discount</option>
+                                    <option value="percent">Percentage Discount (%)</option>
+                                    <option value="flat">Flat Discount (₹)</option>
+                                </select>
+                            </div>
+                            <div class="form-group hidden" id="discount-value-group">
+                                <label id="discount-value-label" for="discount-value">Discount Value</label>
+                                <input type="number" id="discount-value" min="0" step="any" placeholder="e.g. 10">
+                            </div>
+                            <button type="submit" class="btn btn-secondary w-full" id="btn-apply-discount">Update Discount</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Checkout Box -->
+                <div class="card checkout-card" id="checkout-card">
+                    <div class="card-header">
+                        <h3>Payment & Checkout</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="checkout-form" onsubmit="handleCheckout(event)">
+                            <div class="form-group">
+                                <label>Select Payment Method</label>
+                                <div class="payment-options">
+                                    <label class="radio-label">
+                                        <input type="radio" name="paymentType" value="CARD" checked onchange="handlePaymentTypeChange()">
+                                        <span>💳 Card Payment</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="paymentType" value="UPI" onchange="handlePaymentTypeChange()">
+                                        <span>📱 UPI</span>
+                                    </label>
+                                    <label class="radio-label">
+                                        <input type="radio" name="paymentType" value="CASH" onchange="handlePaymentTypeChange()">
+                                        <span>💵 Cash</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Card Fields -->
+                            <div id="card-fields" class="payment-detail-fields">
+                                <div class="form-group">
+                                    <label for="card-number">16-Digit Card Number</label>
+                                    <input type="text" id="card-number" maxlength="16" placeholder="e.g. 1234567812345678">
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-holder">Cardholder Name</label>
+                                    <input type="text" id="card-holder" placeholder="Rahul Sharma" value="Rahul Sharma">
+                                </div>
+                            </div>
+
+                            <!-- UPI Fields -->
+                            <div id="upi-fields" class="payment-detail-fields hidden">
+                                <div class="form-group">
+                                    <label for="upi-id">UPI ID (VPA)</label>
+                                    <input type="text" id="upi-id" placeholder="username@bank (e.g. student@okaxis)">
+                                </div>
+                            </div>
+
+                            <!-- Cash Fields -->
+                            <div id="cash-fields" class="payment-detail-fields hidden">
+                                <div class="form-group">
+                                    <label for="cash-given">Cash Tendered (₹)</label>
+                                    <input type="number" id="cash-given" min="0" step="any" placeholder="Enter cash amount">
+                                    <small class="field-hint">Must be greater than or equal to total payable amount.</small>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-full" id="btn-pay">Pay Now & Place Order</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Order Summary / Invoice Box (Shown after checkout) -->
+                <div class="card invoice-card hidden" id="invoice-card">
+                    <div class="card-header invoice-header">
+                        <h3>🧾 Order Invoice / Summary</h3>
+                        <span class="badge badge-success" id="invoice-status">CONFIRMED</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="invoice-meta">
+                            <div><strong>Order ID:</strong> #<span id="invoice-order-id"></span></div>
+                            <div><strong>Customer:</strong> <span id="invoice-customer"></span></div>
+                            <div><strong>Payment Method:</strong> <span id="invoice-payment-method"></span></div>
+                        </div>
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Price</th>
+                                    <th>Qty</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoice-items"></tbody>
+                        </table>
+                        <div class="invoice-totals">
+                            <div class="summary-row">
+                                <span>Subtotal</span>
+                                <span id="invoice-subtotal">₹0.00</span>
+                            </div>
+                            <div class="summary-row discount-row">
+                                <span id="invoice-discount-desc">Discount</span>
+                                <span id="invoice-discount-amt">-₹0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Taxable Amount</span>
+                                <span id="invoice-taxable">₹0.00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>GST (18%)</span>
+                                <span id="invoice-gst">₹0.00</span>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-row total-row">
+                                <span>Amount Paid</span>
+                                <span id="invoice-final">₹0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Online Shopping Cart System &bull; Core Java & Vanilla Web Architecture</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
