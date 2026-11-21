@@ -102,7 +102,7 @@ This project was developed as part of the **Master of Computer Applications (MCA
 
 ## 👨‍💻 Developer
 
-**Developed by:** Rushi Bhosale
+**Developed by:** Rushiraj Bhosale
 
 **Project Name:** Online Shopping Cart System
 
